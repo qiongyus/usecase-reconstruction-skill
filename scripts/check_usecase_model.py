@@ -269,6 +269,9 @@ def check_29148(data: dict, model: dict, rep: Report) -> None:
                          f"应记入缺口章节而非静默略过")
 
         fd = uc.get("function_details") or {}
+        if not isinstance(fd, dict):
+            rep.error(f"用例 '{uc_id}' 的 function_details 应是映射，实际是 {type(fd).__name__}")
+            fd = {}
         if not fd:
             rep.warn(f"用例 '{uc_id}' 缺少 function_details —— "
                      f"29148 §9.6.12 a)–e) 五项应逐条填写或显式写「未发现」")

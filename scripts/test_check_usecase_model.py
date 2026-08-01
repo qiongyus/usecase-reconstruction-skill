@@ -221,3 +221,11 @@ def test_subfunction_not_required_to_have_scenarios():
     del d["use_cases"][0]["completeness_check"]
     d["use_cases"][0]["scenarios"] = []
     assert run29148(d).errors == []
+
+
+def test_function_details_non_mapping_is_error_not_crash():
+    """function_details 若非映射（如手工写成字符串），须报 error 而非抛异常。"""
+    d = with_scenarios(["normal", "exception"],
+                       function_details="TBD -- 尚未填写为映射")
+    r = run29148(d)
+    assert any("应是映射" in e for e in r.errors)
