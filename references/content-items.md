@@ -120,7 +120,7 @@
 
 ### Annex A.1 与 A.2.7：一条 shall，内部全是 should / may / can
 
-Annex A.1（shall，Annex A 范围内唯一的强制措辞）：
+Annex A.1（shall，**专门规定 A.2.7 内容强制性的那句 shall**——Annex A 里还有其他 shall，如 A.1 同段紧邻的「The project shall produce the following information item…」、A.2.6.1 的「they shall be explicitly identified as required to avoid possible misunderstandings」，但直接指向 A.2.7 内容产出的强制措辞只有这一句）：
 
 > The information item content in A.2.7 **shall** be produced in the course of producing the Stakeholder Requirements Specification…
 

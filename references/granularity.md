@@ -91,7 +91,7 @@ UCRBench（arXiv:2512.13360，*UCRBench: Benchmarking LLMs on Use Case Recovery*
 
 manifest 中 `use_cases[].associations` 恒为空列表；一旦发现代码证据显示两个用例间存在这种依赖关联，正确动作是拆分或合并候选本身，而不是在 `associations` 里登记这段关联——登记关联等于承认了错误的用例边界。
 
-### 对照例：为什么 `Ingest Data` 与 `Query Data`不该合并成 `Manage Data`
+### 对照例：为什么 `Ingest Data` 与 `Query Data` 不该合并成 `Manage Data`
 
 用本节判据检验第三节反例表里的过度合并案例：`Query Data` 可以在从未触发过某一次 `Ingest Data` 的情况下对既有数据独立发起并完整返回结果；`Ingest Data` 完成后也不要求紧接着发生一次查询才算"有意义"——两者各自都是独立、完整、对不同时刻的 actor 有价值的使用。它们**不需要连着做**，所以按本节判据应保持两个用例，而不是合并成 `Manage Data`。这与 CRUD 合并（第三节正例最后一行）的区别在于：CRUD 四个操作作用于同一资源的同一生命周期，通常被同一 actor 当作一件事的不同方面来谈论（REQ-N04 的合并前提），而 ingest/query 是两条独立的使用路径，只是恰好共享同一批底层数据。
 
