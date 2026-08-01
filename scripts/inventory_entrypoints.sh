@@ -16,26 +16,34 @@ PRUNE=""
 for n in $PRUNE_NAMES; do PRUNE="$PRUNE -name $n -o"; done
 PRUNE="${PRUNE% -o}"
 
+# grep --exclude-dir 列表由 PRUNE_NAMES 统一生成，避免和上面的 find 剪枝各写一份、
+# 后续漏改其一（曾出现 grepct 独立硬编码、少了 .venv/__pycache__ 等导致噪音）。
+EXCLUDE_DIRS=""
+for n in $PRUNE_NAMES; do EXCLUDE_DIRS="$EXCLUDE_DIRS --exclude-dir=$n"; done
+
 TOTAL=0
 
 section() { printf '\n\033[1m%s\033[0m\n' "$1"; }
 
-# grepct <label> <pattern> —— 统计并展示前若干命中，带 file:line
+# grepct <label> <pattern> <零命中提示> —— 统计并展示前若干命中，带 file:line；
+# 零命中时打印 ✗ + 提示，不静默——沉默会让「工具漏了」和「确实没有」无法区分。
 grepct() {
   local label="$1"; shift
   local pat="$1"; shift
+  local note="$1"; shift
   local out n
   out=$(grep -rnE "$pat" --include='*.go' --include='*.py' --include='*.js' \
         --include='*.ts' --include='*.java' --include='*.rb' --include='*.rs' \
-        --include='*.kt' --include='*.cs' --include='*.php' \
-        --exclude-dir=node_modules --exclude-dir=vendor --exclude-dir=target \
-        --exclude-dir=.git --exclude-dir=dist --exclude-dir=build \
+        --include='*.kt' --include='*.cs' --include='*.php' --include='*.proto' \
+        $EXCLUDE_DIRS \
         . 2>/dev/null | head -200)
   n=$(printf '%s' "$out" | grep -c . || true)
   if [ "$n" -gt 0 ]; then
     printf '  \033[32m✓\033[0m %-16s %s 处\n' "$label" "$n"
     printf '%s' "$out" | head -3 | sed 's|^\./||' | sed 's|^|      |'
     TOTAL=$((TOTAL + n))
+  else
+    printf '  \033[31m✗\033[0m %-16s %s\n' "$label" "$note"
   fi
 }
 
@@ -44,16 +52,20 @@ echo " 入口点清点（事实层）: $(pwd)"
 echo "════════════════════════════════════════════════════════════"
 
 section "[1] HTTP 路由 —— 最可靠的入口点证据"
-grepct "路由注册" '\.(Get|Post|Put|Delete|Patch|Handle|HandleFunc|route|Route)\(|@(Get|Post|Put|Delete|Request)Mapping|app\.(get|post|put|delete)\(|@app\.route|router\.(get|post|put|delete)|case "/[A-Za-z0-9_/.:-]+":'
+grepct "路由注册" '\.(Get|Post|Put|Delete|Patch|Handle|HandleFunc|route|Route)\(|@(Get|Post|Put|Delete|Request)Mapping|app\.(get|post|put|delete)\(|@app\.route|router\.(get|post|put|delete)|case "/[A-Za-z0-9_/.:-]+":' \
+  "无 —— 未发现 HTTP 路由注册"
 
 section "[2] CLI 子命令"
-grepct "子命令" 'cobra\.Command|argparse|clap::|@click\.command|commander|ArgumentParser|flag\.(String|Int|Bool)\('
+grepct "子命令" 'cobra\.Command|argparse|clap::|@click\.command|commander|ArgumentParser|flag\.(String|Int|Bool)\(' \
+  "无 —— 未发现 CLI 子命令入口"
 
 section "[3] 消息消费者与定时任务"
-grepct "消费者/定时" 'Subscribe\(|Consume\(|@KafkaListener|@Scheduled|cron\.|NewTicker\(|celery\.task|@task'
+grepct "消费者/定时" 'Subscribe\(|Consume\(|@KafkaListener|@Scheduled|cron\.|NewTicker\(|celery\.task|@task' \
+  "无 —— 未发现消息消费者或定时任务"
 
 section "[4] RPC / gRPC 服务方法"
-grepct "RPC 方法" 'rpc [A-Z][A-Za-z]*\(|service [A-Z][A-Za-z]* \{'
+grepct "RPC 方法" 'rpc [A-Z][A-Za-z]*\(|service [A-Z][A-Za-z]* \{' \
+  "无 —— 未发现 RPC/gRPC 服务定义（已扫 .proto）"
 
 section "[5] 库类项目的导出符号"
 printf '  若上述各节均为空，本项目多半是库/工具类，走 B 档。\n'
