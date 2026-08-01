@@ -73,7 +73,7 @@
 | 条款 | 内容项 | 位置 |
 |---|---|---|
 | UML §18.1.3.1 | subject / 用例语义 / 完整性判据 | 本文 §1；各 `UC-1x-*.md` §2 |
-| UML §18.1.3.1 | Actor 语义 | [USE-CASES.md](USE-CASES.md) §3；各 `UC-1x-*.md` §1 |
+| UML §18.1.3.1 | Actor 语义 | 各 `UC-1x-*.md` §1；速览档对应 `USE-CASES.md` §3（标准档不产出该文件） |
 | UML §18.1.3.2/.3 | Extend / Include | 各 `UC-1x-*.md` §1 |
 | UML §18.2.5.6 | 四条 OCL 约束 | `scripts/check_usecase_model.py` 机械核查 |
 | 29148 A.2.7 | 场景与四类变体 | 各 `UC-1x-*.md` §4 |

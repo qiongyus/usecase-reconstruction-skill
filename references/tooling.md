@@ -17,7 +17,7 @@ Step 3（系统操作清单）与 Step 4（聚合成用例）需要按语言提�
 |---|---|
 | 路由提取 | grep `@RequestMapping`/`@GetMapping`/`@PostMapping`（Spring）、`@Path`（JAX-RS） |
 | 导出符号 | `public class` 上的 `public` 方法即 API 面；对编译产物用 `javap -public <class>` 逐类列出，比源码 grep 更准确（能跳过被注释掉的代码） |
-| 调用图 | `javacallgraph`（gousiosg，静态/动态两种模式生成调用图）；无第三方依赖时可用 IDE 的 "Call Hierarchy" 手动核实关键路径 |
+| 调用图 | `java-callgraph`（gousiosg，静态/动态两种模式生成调用图）；无第三方依赖时可用 IDE 的 "Call Hierarchy" 手动核实关键路径 |
 | 测试发现 | Maven：`mvn test -Dtest=ClassName#method -DskipTests=false` 前先 `mvn test -Denforcer.skip=true -DskipTests` 走一遍收集列表；e2e/集成测试惯例用独立命名（Failsafe 插件的 `*IT.java`）与单元测试（`*Test.java`）区分 |
 
 ## Python

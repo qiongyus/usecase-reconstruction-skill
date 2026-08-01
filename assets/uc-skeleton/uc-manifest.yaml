@@ -46,6 +46,9 @@ use_cases:
     # 「无待续输入、可重新发起」或错误态？写出判定理由。
     completeness_check: "<判定理由>"
     goal_confidence: inferred_high
+    # strong 与 weak 两档必填：用例目标的文字出处（weak 档同样有出处，只是
+    # 证据强度较弱，如 README；none 档无文字出处，留空并在 UC-99 缺口章节说明）
+    source: "<README.md:12 或 docs/xxx.md#section，或推导所依据的 file:line>"
     entrypoints: ["<HTTP 路由 / CLI 子命令 / 导出符号>"]
     evidence: ["<file:line>"]
     includes: []           # UML §18.1.3.3：被包含用例的 id 列表

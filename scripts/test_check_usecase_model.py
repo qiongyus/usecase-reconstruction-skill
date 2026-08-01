@@ -11,7 +11,7 @@ def base():
     """一份最小的合规 manifest。"""
     return {
         "subject": {"name": "S", "boundary": "b", "evidence": "m.go:1"},
-        "evidence_path": "doc",
+        "evidence_path": "strong",
         "actors": [{"id": "a1", "name": "A1", "kind": "human",
                     "goal": "g", "confidence": "inferred_high",
                     "evidence": ["m.go:2"]}],

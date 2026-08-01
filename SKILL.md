@@ -21,7 +21,7 @@ description: 从只有源代码（可能含文档）的既有系统重建 use ca
 
 **此处引用的是失败模式的结构性描述，不是分数基线**——论文评测的模型（GPT-5、DeepSeek-V3.2 等）已非当前最新一代，具体准确率不作为本 skill 的目标。真正可移植的结论是论文原句：「current models lack explicit mechanisms for regulating abstraction levels or reasoning hierarchies」——这是**机制缺失**，不会随模型升级自动消失，所以判据必须由本 skill 显式提供。
 
-**对治工具**（唯一可判定的一句，UML §18.1.3.1）：
+**对治工具**（UML §18.1.3.1 中唯一可判定的一句）：
 
 > 执行完毕后，subject 是否处于"无待续输入或动作、用例可被重新发起"的状态，或错误态？
 
@@ -100,9 +100,11 @@ description: 从只有源代码（可能含文档）的既有系统重建 use ca
 
 | 档位 | 触发条件 | 产出 |
 |---|---|---|
-| 速览 | 源文件 < 约 150，或只想摸清对外能力 | 单文件，复制 `assets/uc-skeleton/USE-CASES.md` |
+| 速览 | 源文件 < 约 150，或只想摸清对外能力 | 单文件 `USE-CASES.md` + `uc-manifest.yaml`，复制 `assets/uc-skeleton/USE-CASES.md` 与 `assets/uc-skeleton/uc-manifest.yaml` |
 | 标准 | 源文件约 150–1500 | 复制 `assets/uc-skeleton/UC-00-overview.md`，每个用例一份 `UC-1x-usecase-TEMPLATE.md`，加 `UC-90-traceability.md`、`UC-99-gaps.md`；字段契约见 `assets/uc-skeleton/uc-manifest.yaml` |
 | 完整 | 源文件 > 约 1500，或多模块 | 标准档 + 用例↔代码追溯矩阵 + CI 一致性检查（把 `check_usecase_model.py` 接入 CI） |
+
+**速览档为何也产出 `uc-manifest.yaml`**：`uc-manifest.yaml` 是机器可读的附属品，不是给人读的第二份文档——速览档"单文件"说的是供人阅读的产出只有 `USE-CASES.md` 一份，manifest 不计入这条约束。它存在的唯一理由是让 Step 8 的机械纪律（尤其是对 `goal_confidence == fact` / `actor.confidence == fact` 的拦截）在所有档位上都生效，不因档位低就降级成纯文字劝导。
 
 **规模警戒（硬规则）**：大型多模块项目上用例遗漏是系统性的，不是偶发。标准档以上**必须分模块推进，并强制声明覆盖率与未覆盖区域**——不允许对大仓库笼统宣称"重建了用例模型"。`scripts/inventory_entrypoints.sh` 在源文件数 ≥ 1500 时会主动打印这条警戒。
 
@@ -146,7 +148,7 @@ bash scripts/inventory_docs.sh <repo-root>
 它清点用户面文档、需求/用例痕迹、行为契约、变更叙述四类证据，给出类似下面的判定：
 
 ```
-建议取证路径: 路径 A（有文档，强证据）
+建议取证路径: 路径 A（强证据）
   → 从文档提取用户目标候选，再逐条用代码校验
   → 强证据来自 section [3] 行为契约
 ```

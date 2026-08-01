@@ -82,18 +82,18 @@ if [ "$S2" = 1 ] || [ "$S3" = 1 ]; then
   if [ "$S3" = 1 ]; then
     [ -n "$STRONG" ] && STRONG="$STRONG、section [3] 行为契约" || STRONG="section [3] 行为契约"
   fi
-  printf '  \033[1m建议取证路径: 路径 A（有文档，强证据）\033[0m\n'
+  printf '  \033[1m建议取证路径: 路径 A（强证据）\033[0m\n'
   printf '    → 从文档提取用户目标候选，再逐条用代码校验\n'
   printf '    → 代码不支持的剔除（尖锐发现 #1）；文档没记的补充（尖锐发现 #2）\n'
   printf '    → 目标层可标 inferred_high，须注明文字出处\n'
   printf '    → 强证据来自 %s\n' "$STRONG"
 elif [ "$S1" = 1 ] || [ "$S4" = 1 ]; then
-  printf '  \033[1m\033[36m建议取证路径: 路径 A−（有文档，弱证据）\033[0m\n'
+  printf '  \033[1m\033[36m建议取证路径: 路径 A−（弱证据）\033[0m\n'
   printf '    → 仅有用户面文档/变更叙述，无需求或行为契约证据\n'
   printf '    → 目标层只能标 inferred_medium\n'
   printf '    → 优先去找 e2e/BDD 测试与 API 契约来升档\n'
 else
-  printf '  \033[1m\033[33m建议取证路径: 路径 B（无文档 / 文档不足）\033[0m\n'
+  printf '  \033[1m\033[33m建议取证路径: 路径 B（无证据）\033[0m\n'
   printf '    → 主证据换为公开 API 契约 + 测试用例\n'
   printf '    → 目标层只能标 inferred_low 或 gap\n'
   printf '    → \033[31m不要伪造目标层\033[0m\n'
