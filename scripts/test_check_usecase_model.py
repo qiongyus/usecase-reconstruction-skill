@@ -131,3 +131,93 @@ def test_load_manifest_yaml_top_level_list_exits_cleanly(tmp_path):
     with pytest.raises(SystemExit) as exc:
         load_manifest(p)
     assert "顶层应是映射" in str(exc.value)
+
+
+from check_usecase_model import check_29148
+
+
+def run29148(data):
+    rep = Report()
+    model = check_uml(data, rep)
+    rep2 = Report()
+    check_29148(data, model, rep2)
+    return rep2
+
+
+def with_scenarios(variants, **extra):
+    d = base()
+    d["use_cases"][0]["scenarios"] = [
+        {"id": f"SC-01-{v}", "variant": v, "steps": ["s"]} for v in variants
+    ]
+    d["use_cases"][0].update(extra)
+    return d
+
+
+def test_missing_normal_variant_is_error():
+    """29148 A.2.7：每个用例至少要有正常路径场景。"""
+    r = run29148(with_scenarios(["exception"]))
+    assert any("normal" in e for e in r.errors)
+
+
+def test_missing_exception_variant_warns():
+    r = run29148(with_scenarios(["normal"]))
+    assert any("exception" in w for w in r.warnings)
+
+
+def test_all_four_variants_clean():
+    r = run29148(with_scenarios(["normal", "stress", "exception", "degraded"],
+                                function_details={
+                                    "input_validation": "x", "operation_sequence": "x",
+                                    "abnormal_responses": "x", "parameter_effects": "x",
+                                    "io_relationship": "x"}))
+    assert r.errors == []
+
+
+def test_duplicate_scenario_id():
+    """29148 §9.4.17：场景须唯一命名与编号。"""
+    d = base()
+    d["use_cases"][0]["scenarios"] = [
+        {"id": "SC-dup", "variant": "normal", "steps": ["s"]},
+        {"id": "SC-dup", "variant": "exception", "steps": ["s"]},
+    ]
+    assert any("SC-dup" in e for e in run29148(d).errors)
+
+
+def test_invalid_variant_name():
+    d = with_scenarios(["normal", "weird"])
+    assert any("weird" in e for e in run29148(d).errors)
+
+
+def test_missing_function_details_warns():
+    """29148 §9.6.12 a)-e) 五项。"""
+    r = run29148(with_scenarios(["normal", "exception"]))
+    assert any("function_details" in w or "9.6.12" in w for w in r.warnings)
+
+
+def test_partial_function_details_names_missing_keys():
+    d = with_scenarios(["normal", "exception"],
+                       function_details={"input_validation": "x"})
+    r = run29148(d)
+    assert any("operation_sequence" in w for w in r.warnings)
+
+
+def test_user_class_not_covered_by_any_use_case():
+    """A.2.7：所有用户类别都应被场景覆盖。"""
+    d = with_scenarios(["normal", "exception"])
+    d["user_classes"] = ["a1", "orphan"]
+    assert any("orphan" in w for w in run29148(d).warnings)
+
+
+def test_scenario_without_steps():
+    d = base()
+    d["use_cases"][0]["scenarios"] = [{"id": "SC-1", "variant": "normal", "steps": []}]
+    assert any("SC-1" in e and "steps" in e for e in run29148(d).errors)
+
+
+def test_subfunction_not_required_to_have_scenarios():
+    """只有 user_goal 级用例强制要求场景。"""
+    d = base()
+    d["use_cases"][0]["level"] = "subfunction"
+    del d["use_cases"][0]["completeness_check"]
+    d["use_cases"][0]["scenarios"] = []
+    assert run29148(d).errors == []

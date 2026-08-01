@@ -208,6 +208,90 @@ def check_uml(data: dict, rep: Report) -> dict:
     return {"actors": actors, "use_cases": use_cases}
 
 
+# 29148:2018 Annex A.2.7 规定的四类场景变体
+VARIANTS = ("normal", "stress", "exception", "degraded")
+
+# 29148:2018 §9.6.12 a)–e)
+FUNCTION_DETAIL_KEYS = {
+    "input_validation": "a) 输入有效性校验",
+    "operation_sequence": "b) 精确的操作序列",
+    "abnormal_responses": "c) 异常响应",
+    "parameter_effects": "d) 参数的作用",
+    "io_relationship": "e) 输出与输入的关系",
+}
+
+
+def check_29148(data: dict, model: dict, rep: Report) -> None:
+    use_cases = model["use_cases"]
+    seen_scenario_ids: dict[str, str] = {}
+    covered_classes: set[str] = set()
+
+    for uc_id, uc in use_cases.items():
+        scenarios = uc.get("scenarios") or []
+
+        for sc in scenarios:
+            if not isinstance(sc, dict):
+                rep.error(f"用例 '{uc_id}' 的场景应是映射，实际是 {type(sc).__name__}")
+                continue
+            sc_id = sc.get("id")
+            if not sc_id:
+                rep.error(f"用例 '{uc_id}' 有场景缺少 id —— "
+                          f"29148 §9.4.17 要求场景唯一命名与编号")
+                continue
+            if sc_id in seen_scenario_ids:
+                rep.error(f"场景 id 重复: '{sc_id}'（已用于用例 "
+                          f"'{seen_scenario_ids[sc_id]}'）—— 违反 29148 §9.4.17")
+            else:
+                seen_scenario_ids[sc_id] = uc_id
+            variant = sc.get("variant")
+            if variant not in VARIANTS:
+                rep.error(f"场景 '{sc_id}' 的 variant '{variant}' 非法 —— "
+                          f"29148 A.2.7 规定四类：{' / '.join(VARIANTS)}")
+            if not (sc.get("steps") or []):
+                rep.error(f"场景 '{sc_id}' 缺少 steps —— A.2.7 要求 "
+                          f"step-by-step 描述，含 events/actions/stimuli/"
+                          f"information/interactions")
+
+        # 仅 user_goal 级强制要求场景
+        if uc.get("level") != "user_goal":
+            continue
+
+        covered_classes.update(uc.get("actors") or [])
+        present = {sc.get("variant") for sc in scenarios if isinstance(sc, dict)}
+
+        if "normal" not in present:
+            rep.error(f"用例 '{uc_id}' 缺少 normal 变体 —— "
+                      f"29148 A.2.7 要求描述正常运行场景")
+        for v in ("exception", "stress", "degraded"):
+            if v not in present:
+                rep.warn(f"用例 '{uc_id}' 缺少 {v} 变体 —— A.2.7 要求考察四类变体；"
+                         f"若代码中确无对应路径，这是一条尖锐发现（扩展流缺失），"
+                         f"应记入缺口章节而非静默略过")
+
+        fd = uc.get("function_details") or {}
+        if not fd:
+            rep.warn(f"用例 '{uc_id}' 缺少 function_details —— "
+                     f"29148 §9.6.12 a)–e) 五项应逐条填写或显式写「未发现」")
+        else:
+            for k, desc in FUNCTION_DETAIL_KEYS.items():
+                if not (fd.get(k) or "").strip():
+                    rep.warn(f"用例 '{uc_id}' 的 function_details 缺 {k}（{desc}）")
+
+    # A.2.7：所有用户类别都应被覆盖
+    for cls in data.get("user_classes") or []:
+        if cls not in covered_classes:
+            rep.warn(f"用户类别 '{cls}' 未被任何 user_goal 用例覆盖 —— "
+                     f"A.2.7 要求场景覆盖所有用户类别")
+
+    modes = data.get("operational_modes") or []
+    if not modes:
+        rep.warn("未声明 operational_modes —— A.2.7 要求覆盖所有操作模式")
+    else:
+        rep.note(f"操作模式 {len(modes)} 种 × 用户类别 "
+                 f"{len(data.get('user_classes') or [])} 类，"
+                 f"共 {len(seen_scenario_ids)} 个场景")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description="核对用例模型的机械约束")
     ap.add_argument("target", type=Path, help="用例产出目录或 manifest 文件路径")
@@ -217,7 +301,9 @@ def main() -> int:
     rep = Report()
     print(f"核对用例模型: {args.target}\n")
     print("\033[1m[UML 2.5.1 §18 约束]\033[0m")
-    check_uml(data, rep)
+    model = check_uml(data, rep)
+    print("\033[1m[ISO/IEC/IEEE 29148:2018 场景与功能约束]\033[0m")
+    check_29148(data, model, rep)
     return rep.emit()
 
 
