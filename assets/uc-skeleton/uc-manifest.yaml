@@ -43,6 +43,11 @@ use_cases:
     evidence: ["<file:line>"]
     includes: []           # UML §18.1.3.3：被包含用例的 id 列表
     extends: []            # UML §18.1.3.2：被扩展用例的 id 列表
+    # UML §18.2.5.6 no_association_to_use_case：同一 subject 的用例之间不得
+    # 建立关联，因为每个用例各自描述对 subject 的一次完整使用（§18.1.3.1）。
+    # 故此字段恒为空列表；若发现代码证据显示两个用例间存在关联，应视为建模
+    # 错误并拆分/合并用例，而不是在此填入用例 id。
+    associations: []
     preconditions: []
     postconditions: []
     scenarios:

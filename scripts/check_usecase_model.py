@@ -61,7 +61,7 @@ class Report:
         if self.warnings:
             print(f"\033[33m基本合规：0 项违规，{len(self.warnings)} 项警告\033[0m")
             return 0
-        print("\033[32m合规：全部约束通过\033[0m")
+        print("\033[32m✓ 合规：全部约束通过\033[0m")
         return 0
 
 
@@ -81,7 +81,10 @@ def load_manifest(target: Path) -> dict:
 
     text = path.read_text(encoding="utf-8")
     if path.suffix == ".json":
-        return json.loads(text)
+        data = json.loads(text)
+        if not isinstance(data, dict):
+            sys.exit(f"{path} 顶层应是映射（mapping），实际是 {type(data).__name__}")
+        return data
     try:
         import yaml
     except ImportError:

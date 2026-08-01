@@ -1,8 +1,10 @@
 import sys
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).parent))
-from check_usecase_model import Report, check_uml
+from check_usecase_model import Report, check_uml, load_manifest
 
 
 def base():
@@ -111,3 +113,21 @@ def test_verb_first_naming_accepts_verb():
     d = base()
     d["use_cases"][0]["name"] = "Ingest Data"
     assert not any("动词" in w for w in run(d).warnings)
+
+
+def test_load_manifest_json_top_level_list_exits_cleanly(tmp_path):
+    """畸形 .json（顶层非映射）须干净地 sys.exit，而不是抛未捕获的 AttributeError。"""
+    p = tmp_path / "uc-manifest.json"
+    p.write_text("[]", encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        load_manifest(p)
+    assert "顶层应是映射" in str(exc.value)
+
+
+def test_load_manifest_yaml_top_level_list_exits_cleanly(tmp_path):
+    """与 .json 分支平行的 .yaml 用例，确认两种格式行为一致。"""
+    p = tmp_path / "uc-manifest.yaml"
+    p.write_text("- a\n- b\n", encoding="utf-8")
+    with pytest.raises(SystemExit) as exc:
+        load_manifest(p)
+    assert "顶层应是映射" in str(exc.value)
