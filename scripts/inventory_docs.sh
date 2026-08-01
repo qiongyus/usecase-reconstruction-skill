@@ -17,7 +17,6 @@ PRUNE=""
 for n in $PRUNE_NAMES; do PRUNE="$PRUNE -name $n -o"; done
 PRUNE="${PRUNE% -o}"
 
-DOC_HITS=0
 SECT_HIT=0
 
 section() { SECT_HIT=0; printf '\n\033[1m%s\033[0m\n' "$1"; }
@@ -31,7 +30,6 @@ hit() { # hit <label> <maxdepth> <find-expr...>
   if [ -n "$out" ]; then
     printf '  \033[32m✓\033[0m %-18s %s\n' "$label" "$out"
     SECT_HIT=1
-    DOC_HITS=$((DOC_HITS + 1))
   fi
 }
 
@@ -49,12 +47,14 @@ hit "README"         1 -iname 'readme*'
 hit "用户手册"        3 -iname 'manual*' -o -iname 'user*guide*' -o -iname 'getting*started*' -o -iname 'tutorial*'
 hit "docs 目录"       2 -name docs -type d -o -name doc -type d -o -name website -type d
 fallback "用户面文档" "无 —— 用户目标无文字出处"
+S1=$SECT_HIT
 
 section "[2] 需求与用例痕迹 —— 最直接的证据"
 hit "用例/需求文档"    4 -iname '*use*case*' -o -iname '*requirement*' -o -iname '*user*stor*' -o -iname '*spec*.md'
 hit "UML/图"          4 -iname '*.puml' -o -iname '*.plantuml' -o -iname '*usecase*.svg' -o -iname '*usecase*.png'
 hit "issue 模板"      3 -path '*.github/ISSUE_TEMPLATE*' -o -iname '*issue_template*'
 fallback "需求痕迹"   "无"
+S2=$SECT_HIT
 
 section "[3] 行为契约 —— 场景的最硬证据"
 # 29148 A.2.7 自陈场景「can serve as the basis for developing acceptance test plans」，此处反向使用
@@ -62,19 +62,34 @@ hit "BDD feature"    4 -name '*.feature' -o -name 'features' -type d
 hit "e2e/验收测试"    3 -name 'e2e' -type d -o -name 'acceptance*' -type d -o -name 'integration*' -type d -o -name 'apptest' -type d
 hit "API 契约"        4 -iname 'openapi*.y*ml' -o -iname 'swagger*.json' -o -name '*.proto' -o -name '*.graphql'
 fallback "行为契约"   "无 —— 场景步骤只能从 happy path 代码反推"
+S3=$SECT_HIT
 
 section "[4] 变更叙述 —— 功能演进的旁证"
 hit "CHANGELOG"      2 -iname 'changelog*' -o -iname 'CHANGES*' -o -iname 'NEWS*' -o -iname 'RELEASE*'
 fallback "变更叙述"   "无"
+S4=$SECT_HIT
 
 section "[5] 判定"
 
-printf '  命中文档类别数: %s\n' "$DOC_HITS"
-if [ "$DOC_HITS" -ge 2 ]; then
-  printf '  \033[1m建议取证路径: 路径 A（有文档）\033[0m\n'
+CAT_HITS=$((S1 + S2 + S3 + S4))
+printf '  命中文档类别: %s/4\n' "$CAT_HITS"
+
+if [ "$S2" = 1 ] || [ "$S3" = 1 ]; then
+  STRONG=""
+  [ "$S2" = 1 ] && STRONG="section [2] 需求与用例痕迹"
+  if [ "$S3" = 1 ]; then
+    [ -n "$STRONG" ] && STRONG="$STRONG、section [3] 行为契约" || STRONG="section [3] 行为契约"
+  fi
+  printf '  \033[1m建议取证路径: 路径 A（有文档，强证据）\033[0m\n'
   printf '    → 从文档提取用户目标候选，再逐条用代码校验\n'
   printf '    → 代码不支持的剔除（尖锐发现 #1）；文档没记的补充（尖锐发现 #2）\n'
   printf '    → 目标层可标 inferred_high，须注明文字出处\n'
+  printf '    → 强证据来自 %s\n' "$STRONG"
+elif [ "$S1" = 1 ] || [ "$S4" = 1 ]; then
+  printf '  \033[1m\033[36m建议取证路径: 路径 A−（有文档，弱证据）\033[0m\n'
+  printf '    → 仅有用户面文档/变更叙述，无需求或行为契约证据\n'
+  printf '    → 目标层只能标 inferred_medium\n'
+  printf '    → 优先去找 e2e/BDD 测试与 API 契约来升档\n'
 else
   printf '  \033[1m\033[33m建议取证路径: 路径 B（无文档 / 文档不足）\033[0m\n'
   printf '    → 主证据换为公开 API 契约 + 测试用例\n'
