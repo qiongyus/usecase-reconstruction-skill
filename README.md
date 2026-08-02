@@ -99,7 +99,7 @@ ln -s ../../.agents/skills/usecase-reconstruction ~/.claude/skills/usecase-recon
 - `inventory_docs.sh` 的三档判定在四个真实仓库上实测过（VictoriaTraces 4/4→A、o2-benchmark 1/4→A−、`lib/mergeset` 0/4→B、o2 2629 文件→规模警戒）
 - skill-creator `quick_validate` 通过
 
-评测资产（4 个用例 + `grade.py`）已就绪，在开发仓 cc-book 的 `skills/_evals/usecase-reconstruction/`，未运行。
+评测资产（4 个用例 + 评分脚本）已就绪，未运行。
 
 **已知限制**：
 
@@ -107,7 +107,3 @@ ln -s ../../.agents/skills/usecase-reconstruction ~/.claude/skills/usecase-recon
 - 「目标是否编造」「实现细节泄漏」「粒度判据的内容质量」三项只有文字纪律，无机械强制，靠 Step 8 之后的人工自检与验证环节兜底；SKILL.md 对此有显式交代
 - 入口点脚本的 `head -3` 抽样按遍历顺序先到先得，是展示样本而非判定依据
 - `references/` 中对 `standards/01-requirements/norms.md` 的 `REQ-N*` 引用，在该文件不存在的项目上无对应免责说明（SKILL.md 正文有「不存在则静默跳过」的保护）
-
-## 开发
-
-开发于 cc-book 仓库 `skills/usecase-reconstruction/`（独立 git 仓库），发布即 rsync 到 `~/.agents/skills/`。可行性研究、设计文档与实施计划在 cc-book 的 `docs/brainstorms/`、`docs/plans/`，构建记录（10 个任务、12 轮修复、15 个缺陷及其分类）在 `skills/README.md`。
