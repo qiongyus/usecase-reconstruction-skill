@@ -90,20 +90,3 @@ ln -s ../../.agents/skills/usecase-reconstruction ~/.claude/skills/usecase-recon
 ```
 
 依赖：`python3`（校验脚本，仅用标准库）、`bash` + `grep`/`find`（清点脚本）。`pytest` 只在跑测试时需要。
-
-## 验证状态
-
-**v0.1.0 尚未做端到端评测**——不同于 `architecture-reconstruction`（2 轮评测）与 `requirements-reconstruction`（真实项目走通 Step 0–8），本 skill 目前只有构建期验证：
-
-- 25 项 pytest 全绿，覆盖 UML 四条 OCL 约束与 29148 约束组的判定逻辑
-- `inventory_docs.sh` 的三档判定在四个真实仓库上实测过（VictoriaTraces 4/4→A、o2-benchmark 1/4→A−、`lib/mergeset` 0/4→B、o2 2629 文件→规模警戒）
-- skill-creator `quick_validate` 通过
-
-评测资产（4 个用例 + 评分脚本）已就绪，未运行。
-
-**已知限制**：
-
-- `evidence_path` 与 `goal_confidence` 之间**故意不设一致性校验**——现在就机械封顶会掩盖首轮评测最有说服力的观察：置信度分布是否随证据强度单调变化
-- 「目标是否编造」「实现细节泄漏」「粒度判据的内容质量」三项只有文字纪律，无机械强制，靠 Step 8 之后的人工自检与验证环节兜底；SKILL.md 对此有显式交代
-- 入口点脚本的 `head -3` 抽样按遍历顺序先到先得，是展示样本而非判定依据
-- `references/` 中对 `standards/01-requirements/norms.md` 的 `REQ-N*` 引用，在该文件不存在的项目上无对应免责说明（SKILL.md 正文有「不存在则静默跳过」的保护）
