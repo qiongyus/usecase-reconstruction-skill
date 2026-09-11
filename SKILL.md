@@ -92,7 +92,7 @@ description: 从只有源代码（可能含文档）的既有系统重建 use ca
 
 **还有一处结构性冲突躲不开**：29148 §5.2.6 Complete（shall）要求需求集合"不含 TBD/TBS/TBR"，而本 skill 的证据纪律要求把拿不到的内容显式标为【缺口】——重建产出必然含 TBD 类占位，两者无法同时满足。选择满足缺口纪律，即对 §5.2.6 不满足，这个取舍同样只在文档头声明一次，不要在正文悄悄抹平。
 
-**用例文本的排版格式不是规范要求。** UML §18.1.3.2 明确用例可以用"natural language, tables, trees, etc."表达，不规定格式；"前置条件 / 主成功场景 / 扩展"这套结构出自 Cockburn《Applying UML and Patterns》【二手】，用不用是排版选择。条款逐条要求、shall/should 区分、§5.2.6 冲突的完整论述，见 `references/content-items.md`。
+**用例文本的排版格式不是规范要求。** UML §18.1.3.2 明确用例可以用"natural language, tables, trees, etc."表达，不规定格式；"前置条件 / 主成功场景 / 扩展"这套结构出自 Cockburn 的用例模板（见 Larman《Applying UML and Patterns》Ch6 §6.8）【二手】，用不用是排版选择。条款逐条要求、shall/should 区分、§5.2.6 冲突的完整论述，见 `references/content-items.md`。
 
 ## 产出规模分级
 

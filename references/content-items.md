@@ -6,7 +6,7 @@
 
 - 用例模型结构 —— UML 2.5.1 §18（【一手】，OMG `formal/17-12-05`，796 页，免费公开）
 - 场景与功能细节 —— ISO/IEC/IEEE 29148:2018 §5、§7、§9、Annex A.2.7、Annex C（【一手】）
-- 用例文本排版惯例（brief/casual/fully dressed、REQ-N 系列命名与合并规则）—— Cockburn《Applying UML and Patterns》3rd ed.（【二手】，见 `norms/01-requirements/norms.md`）。UML 与 29148 均不规定用例文本的排版格式，见下方「§18.1.3.2 用例文本格式」一节。
+- 用例文本排版惯例（brief/casual/fully dressed、REQ-N 系列命名与合并规则）—— Larman《Applying UML and Patterns》3rd ed. Ch6（【二手】，见 `norms/01-requirements/norms.md`；fully dressed 所用模板据该书 §6.8 出自 Alistair Cockburn）。UML 与 29148 均不规定用例文本的排版格式，见下方「§18.1.3.2 用例文本格式」一节。
 
 **一致性声明的诚实形态**（详见文末第三节）：本文档清单可以当完备性检查表用；对 29148 声明"完全一致"或"裁剪一致"两者都做不到。以下逐条讲解时不再重复此限制，只在此处与文末各声明一次。
 
