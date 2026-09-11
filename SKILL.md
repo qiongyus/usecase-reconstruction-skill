@@ -191,7 +191,7 @@ bash scripts/inventory_entrypoints.sh <repo-root>
 
 **必须在 Step 3 之后进行，顺序不能颠倒。** 先机械列出操作，再用完整性判据把操作聚合成用例，而不是让模型直接对着代码"想"出一份用例清单——这正是 UCRBench 论文点名但未实现的"code-guided decomposition"。颠倒顺序是粒度失控的直接原因：先想用例名再找证据，判据就沦为事后合理化；Xpipe 案例的 2103 个「Check GPU」类条目，本质是把操作清单本身当成了用例清单，跳过了这一步聚合。
 
-用完整性判据（第二节）给出 actor（推断）与用例名（动词开头）；两个都通过判据的候选是否要合并，用 `no_association_to_use_case` 的辅助判据核对（`references/granularity.md` 四）。CRUD 类目标按惯例合并为 `Manage <X>`（若项目存在 `standards/01-requirements/`，对应 REQ-N04，见文末）。
+用完整性判据（第二节）给出 actor（推断）与用例名（动词开头）；两个都通过判据的候选是否要合并，用 `no_association_to_use_case` 的辅助判据核对（`references/granularity.md` 四）。CRUD 类目标按惯例合并为 `Manage <X>`（若项目存在 `norms/01-requirements/`，对应 REQ-N04，见文末）。
 
 未通过完整性判据的候选不必自动升格为独立条目——只有当它被两个以上 `user_goal` 用例共同依赖、值得作为可复用部分单独命名时，才登记为 `level: subfunction` 并用 `includes` 关联（UML §18.1.3.3）；某段行为脱离基用例仍有独立意义则登记为 `extends`（§18.1.3.2）。只在一个用例内部出现一次的步骤，直接写进该用例的 `function_details` 或场景 `steps` 即可，不必单独建条目。
 
@@ -252,4 +252,4 @@ python3 scripts/check_usecase_model.py <uc-dir-or-manifest>
 
 四份互不重复彼此的细节：条款原文查 `content-items.md`，粒度判据查 `granularity.md`，取证与置信度查 `evidence-discipline.md`，语言专属工具查 `tooling.md`——交叉引用点见各自开头。
 
-若项目存在 `standards/01-requirements/`（或 CLAUDE.md 中声明的 `$STD`），一并检索并在产出中标注其条目 ID（如 `REQ-N03` 用例命名动词开头、`REQ-N04` CRUD 合并、`REQ-N06` 黑盒用例），使结论可回溯到项目自己的规范依据。不存在则静默跳过——本 skill 自身完备，不依赖它。
+若项目存在 `norms/01-requirements/`（或 CLAUDE.md 中声明的 `$STD`），一并检索并在产出中标注其条目 ID（如 `REQ-N03` 用例命名动词开头、`REQ-N04` CRUD 合并、`REQ-N06` 黑盒用例），使结论可回溯到项目自己的规范依据。不存在则静默跳过——本 skill 自身完备，不依赖它。
