@@ -106,6 +106,8 @@ description: 从只有源代码（可能含文档）的既有系统重建 use ca
 
 **落盘目录（约定）**：所有产出统一写入当前工作仓库的 `docs/reconstruction/use-cases/`——含 `uc-manifest.yaml`；用户显式指定了其他位置则从之。三个重建 skill 共用 `docs/reconstruction/` 作为约定根，各占一个子目录：本 skill 用 `use-cases/`，`architecture-reconstruction` 用 `architecture/`，`requirements-reconstruction` 用 `requirements/`。若本次重建对象是仓库内的子项目/子目录（monorepo 成员、用户指定的子范围），在约定根后插一级目标标识：`docs/reconstruction/<target-slug>/use-cases/`，`<target-slug>` 取目标相对仓库根的路径、`/` 换成 `-`（如 `packages/core` → `packages-core`）；整仓重建不加这一级。
 
+**外层约定**：「当前工作仓库」按产出去向取值——产出允许落入被重建仓库本身时（为其贡献代码、补文档），就是该仓库；产出不进上游仓库时（重写战役、独立补 spec），工作仓库为与源克隆**同级**、统一命名 `<upstream>-spec` 的 **git 仓库**，基线源码快照以源克隆的 worktree 落同级 `<upstream>-baseline`。三个重建 skill 共用此约定，细则（含日后启动重写时的升格更名）见 `requirements-reconstruction` Step 0「工作仓库约定」。
+
 **速览档为何也产出 `uc-manifest.yaml`**：`uc-manifest.yaml` 是机器可读的附属品，不是给人读的第二份文档——速览档"单文件"说的是供人阅读的产出只有 `USE-CASES.md` 一份，manifest 不计入这条约束。它存在的唯一理由是让 Step 8 的机械纪律（尤其是对 `goal_confidence == fact` / `actor.confidence == fact` 的拦截）在所有档位上都生效，不因档位低就降级成纯文字劝导。
 
 **规模警戒（硬规则）**：大型多模块项目上用例遗漏是系统性的，不是偶发。标准档以上**必须分模块推进，并强制声明覆盖率与未覆盖区域**——不允许对大仓库笼统宣称"重建了用例模型"。`scripts/inventory_entrypoints.sh` 在源文件数 ≥ 1500 时会主动打印这条警戒。
